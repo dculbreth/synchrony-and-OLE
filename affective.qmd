@@ -5,25 +5,99 @@ format: html
 editor: visual
 ---
 
-Test
-
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
-
 ```{r}
-1 + 1
+#| echo: FALSE
+#| output: FALSE
+
+install.packages(c("dplyr","readr","tidyr","writexl","readxl","tidytext","textdata","ggplot2","scales"))
+library(dplyr)
+library(readr)
+library(tidyr)
+library(writexl)
+library(tidytext)
+library(textdata)
+library(ggplot2)
+library(scales)
+raw <- read.csv("data/master.csv")
+raw <-raw |>
+  filter(modality == "Async" | modality == "Sync" | modality == "Quasi") |>
+  select(c("modality", 
+           "sender",
+           "session",
+           "message"))
+#tokenize
+tokens <- 
+  unnest_tokens(raw, 
+                output = word,
+                input = message)
+#tidy
+tokens <-
+  anti_join(tokens,
+            stop_words,
+            by = "word")
+token_frequency <- count(tokens, word, sort = TRUE)
+token_frequency
+my_stopwords <- c("2", "42", "pp", "31035", "60407")
+tokens <- tokens |>
+  filter(!word %in% my_stopwords)
+rm(my_stopwords)
 ```
 
-You can add options to executable code like this
+# AFINN
 
 ```{r}
-#| echo: false
-2 * 2
+#| echo: TRUE
+afinn <- get_sentiments("afinn")
+AFINN_global <- inner_join(tokens, afinn, by = "word")
+AFINN_Async <- AFINN_global |>
+  filter(modality == "Async") |>
+  summarize(sentiment = sum(value))
+AFINN_Sync <- AFINN_global |>
+  filter(modality == "Sync") |>
+  summarize(sentiment = sum(value))
+AFINN_Quasi <- AFINN_global |>
+  filter(modality == "Quasi") |>
+  summarize(sentiment = sum(value))
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+# BING
+
+```{r}
+#| echo: TRUE
+
+bing <- get_sentiments("bing")
+BING_global <- inner_join(tokens, bing, by = "word")
+BING_Async <- BING_global |>
+  filter(modality == "Async") |>
+  count(sentiment, sort = TRUE)
+BING_Sync <- BING_global |>
+  filter(modality == "Sync") |>
+  count(sentiment, sort = TRUE)
+BING_Quasi <- BING_global |>
+  filter(modality == "Quasi") |>
+  count(sentiment, sort = TRUE)
+```
+
+# NRC
+
+```{r}
+#| echo: TRUE
+
+nrc <- get_sentiments("nrc")
+NRC_global <- inner_join(tokens, nrc, by = "word")
+NRC_Async <- NRC_global |>
+  filter(modality == "Async") |>
+  count(sentiment, sort = TRUE)
+NRC_Sync <- NRC_global |>
+  filter(modality == "Sync") |>
+  count(sentiment, sort = TRUE)
+NRC_Quasi <- NRC_global |>
+  filter(modality == "Quasi") |>
+  count(sentiment, sort = TRUE)
+```
+
+# Comparisons
+
+```{r}
+
+```
