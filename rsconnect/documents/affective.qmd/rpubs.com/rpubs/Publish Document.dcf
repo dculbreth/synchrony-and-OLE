@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/1398663/a2fb5595578f410fa1851251ad56dc08
+bundleId: https://api.rpubs.com/api/v1/document/1398663/a2fb5595578f410fa1851251ad56dc08
+url: http://rpubs.com/d_culbreth/1398663
+version: 1

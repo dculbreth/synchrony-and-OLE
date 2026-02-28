@@ -6,18 +6,13 @@ editor: visual
 ---
 
 ```{r}
-#| echo: FALSE
-#| output: FALSE
+#| label: Setup & Tidy
+#| include: false
+#| output: false
 
-install.packages(c("dplyr","readr","tidyr","writexl","readxl","tidytext","textdata","ggplot2","scales"))
-library(dplyr)
-library(readr)
-library(tidyr)
-library(writexl)
-library(tidytext)
-library(textdata)
-library(ggplot2)
-library(scales)
+install.packages("pacman", repos = "http://cran.us.r-project.org")
+pacman::p_load(tidyverse,writexl,readxl,tidytext,textdata,scales)
+
 raw <- read.csv("data/master.csv")
 raw <-raw |>
   filter(modality == "Async" | modality == "Sync" | modality == "Quasi") |>
@@ -46,7 +41,8 @@ rm(my_stopwords)
 # AFINN
 
 ```{r}
-#| echo: TRUE
+#| echo: true
+
 afinn <- get_sentiments("afinn")
 AFINN_global <- inner_join(tokens, afinn, by = "word")
 AFINN_Async <- AFINN_global |>
@@ -58,6 +54,7 @@ AFINN_Sync <- AFINN_global |>
 AFINN_Quasi <- AFINN_global |>
   filter(modality == "Quasi") |>
   summarize(sentiment = sum(value))
+AFINN_Async
 ```
 
 # BING
